@@ -1,33 +1,47 @@
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { RandomNumber } from '@/components/game/RandomNumber';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function GameScreen() {
 
-    
-    const randomNumbers = Array.from({ length: 6 }, () => 1 + Math.floor(Math.random() * 10));
+    const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+    const randomNumbers = Array.from({ length: 6 }).map(() => 1 + Math.floor(Math.random() * 10));
     const target = randomNumbers.slice(0, 4).reduce((acc, curr) => acc + curr, 0);
-
+    console.log(randomNumbers);
     // sufle the array
-    for (let i = randomNumbers.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * i);
-        const temp = randomNumbers[i];
-        randomNumbers[i] = randomNumbers[j];
-        randomNumbers[j] = temp;
+    // for (let i = randomNumbers.length - 1; i > 0; i--) {
+    //     const j = Math.floor(Math.random() * i);
+    //     const temp = randomNumbers[i];
+    //     randomNumbers[i] = randomNumbers[j];
+    //     randomNumbers[j] = temp;
+    // }
+
+    const isSelected = (numberIndex: number) => {
+        return selectedNumbers.indexOf(numberIndex) >= 0;
     }
 
+    const handleSelect = (numberIndex: number) => {
+        setSelectedNumbers((preState) => {
+            return [...preState, numberIndex];
+        });
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <ThemedText type='title'>Game</ThemedText>
             <ThemedText type='defaultSemiBold'>GameScreen</ThemedText>
             <ThemedText style={styles.target}>{target}</ThemedText>
-            {/* <Text style={{color: "#fff"}} >{randomNumbers}</Text> */}
             <View style={styles.numbersContainer}>
                 {
                     randomNumbers.map((number, index) => (
-                        <ThemedText key={index} style={styles.number}>{number}</ThemedText>
+                        <RandomNumber 
+                            number={number} 
+                            key={index} 
+                            isDisabled={isSelected(index)} 
+                            id={index}
+                            selectNumber={handleSelect}
+                        />
                     ))
                 }
             </View>
@@ -56,15 +70,5 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginTop: 50,
         justifyContent: 'space-around',
-    },
-    number: {
-        width: 100,
-        backgroundColor: '#6c757d',
-        textAlign: 'center',
-        padding: 20,
-        color: '#f8f9fa',
-        fontSize: 24,
-        marginHorizontal: 15,
-        marginVertical: 25,
-    } 
+    }
 });
